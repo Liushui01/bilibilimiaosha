@@ -4,6 +4,7 @@ import com.example.generator.pojo.Order;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.generator.pojo.User;
 import com.example.javamiaosha.dto.GoodsDto;
+import com.example.javamiaosha.dto.OrderHtmlDto;
 
 /**
  * <p>
@@ -16,4 +17,6 @@ import com.example.javamiaosha.dto.GoodsDto;
 public interface IOrderService extends IService<Order> {
 
     Order seckill(User user, GoodsDto goodsDto);
+
+    OrderHtmlDto detail(Long orderId);
 }

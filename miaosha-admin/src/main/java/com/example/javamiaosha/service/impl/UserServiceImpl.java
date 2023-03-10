@@ -18,8 +18,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CookieValue;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -54,7 +56,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
         //生成cookie
         String ticket= UUIDUtil.uuid();
-        redisTemplate.opsForValue().set("user:"+ticket,user);
+        redisTemplate.opsForValue().set("user:"+ticket,user,600, TimeUnit.SECONDS);
         log.error("{}","cookie的值为："+ticket);
         CookieUtil.setCookie(request,response,"userTicket",ticket);
         return RespBean.success(ticket);

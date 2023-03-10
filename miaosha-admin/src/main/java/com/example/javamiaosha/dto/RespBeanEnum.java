@@ -16,7 +16,8 @@ public enum RespBeanEnum {
     USER_NULL(50023,"用户不存在"),
     BIND_ERROR(50024,"参数校验异常"),
     EMPTY_STOCK(500500,"库存不足"),
-    REPEATE_ERROR(500501,"该商品每人限购一件");
+    REPEATE_ERROR(500501,"该商品每人限购一件"),
+    ORDER_NOT_EXIST(50025,"订单不存在");
     private final Integer code;
     private final String message;
 }

@@ -7,7 +7,12 @@ import com.example.generator.mapper.OrderMapper;
 import com.example.generator.mapper.SeckillGoodsMapper;
 import com.example.generator.mapper.SeckillOrderMapper;
 import com.example.generator.pojo.*;
+import com.example.javamiaosha.dao.GoodsDtoDao;
 import com.example.javamiaosha.dto.GoodsDto;
+import com.example.javamiaosha.dto.OrderHtmlDto;
+import com.example.javamiaosha.dto.RespBean;
+import com.example.javamiaosha.dto.RespBeanEnum;
+import com.example.javamiaosha.exception.GlobalException;
 import com.example.javamiaosha.service.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -33,6 +38,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     GoodsMapper goodsMapper;
     @Autowired
     OrderMapper orderMapper;
+    @Autowired
+    GoodsDtoDao goodsDtoDao;
 
     @Override
     public Order seckill(User user, GoodsDto goodsDto) {
@@ -46,6 +53,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         Order order = insertOrder(user, goodsDto);
 
         return order;
+    }
+
+    @Override
+    public OrderHtmlDto detail(Long orderId) {
+        if(orderId==null){
+            throw new GlobalException(RespBeanEnum.ORDER_NOT_EXIST);
+        }
+        Order order = orderMapper.selectById(orderId);
+        GoodsDto goodsDto = goodsDtoDao.findGoodsDtoByGoodsId(order.getGoodsId());
+        OrderHtmlDto orderHtmlDto=new OrderHtmlDto();
+        orderHtmlDto.setOrder(order);
+        orderHtmlDto.setGoodsDto(goodsDto);
+        return orderHtmlDto;
     }
 
     public Order insertOrder(User user,GoodsDto goodsDto){
