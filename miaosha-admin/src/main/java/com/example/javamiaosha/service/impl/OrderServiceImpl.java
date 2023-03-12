@@ -15,7 +15,10 @@ import com.example.javamiaosha.dto.RespBeanEnum;
 import com.example.javamiaosha.exception.GlobalException;
 import com.example.javamiaosha.service.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -40,15 +43,28 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     OrderMapper orderMapper;
     @Autowired
     GoodsDtoDao goodsDtoDao;
+    @Autowired
+    RedisTemplate redisTemplate;
 
+    @Transactional
     @Override
     public Order seckill(User user, GoodsDto goodsDto) {
+        ValueOperations valueOperations = redisTemplate.opsForValue();
         //修改秒杀库存
-        seckillGoodsMapper.update(null,new UpdateWrapper<SeckillGoods>().set("stock_count",goodsDto.getStockCount()-1)
-                .eq("goods_id", goodsDto.getId()));
+        int update = seckillGoodsMapper.update(null, new UpdateWrapper<SeckillGoods>().setSql("stock_count=stock_count-1")
+                .eq("goods_id", goodsDto.getId()).gt("stock_count", 0));
         //修改商品总库存
-        goodsMapper.update(null,new UpdateWrapper<Goods>().set("goods_stock",goodsDto.getGoodsStock()-1)
-                .eq("id",goodsDto.getId()));
+        if(update>0){
+            int update1 = goodsMapper.update(null, new UpdateWrapper<Goods>().setSql("goods_stock=goods_stock-1")
+                .eq("id", goodsDto.getId()).gt("goods_stock",0));
+            if(!(update1>0)){
+                valueOperations.set("isStockEmpty:"+goodsDto.getId(),"0");
+                return null;
+            }
+        }else {
+            valueOperations.set("isStockEmpty:"+goodsDto.getId(),"0");
+            return null;
+        }
         //添加订单
         Order order = insertOrder(user, goodsDto);
 
@@ -62,9 +78,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
         Order order = orderMapper.selectById(orderId);
         GoodsDto goodsDto = goodsDtoDao.findGoodsDtoByGoodsId(order.getGoodsId());
-        OrderHtmlDto orderHtmlDto=new OrderHtmlDto();
-        orderHtmlDto.setOrder(order);
-        orderHtmlDto.setGoodsDto(goodsDto);
+        OrderHtmlDto orderHtmlDto=new OrderHtmlDto(order,goodsDto);
         return orderHtmlDto;
     }
 
@@ -87,6 +101,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         seckillOrder.setGoodsId(goodsDto.getId());
         seckillOrder.setUserId(user.getId());
         seckillOrderMapper.insert(seckillOrder);
+        redisTemplate.opsForValue().set("order:"+user.getId()+":"+goodsDto.getId(),seckillOrder);
         return order;
     }
 }

@@ -25,7 +25,6 @@ public class OrderController {
     @RequestMapping("/detail")
     public RespBean detail(User user,Long orderId){
         OrderHtmlDto orderHtmlDto = iOrderService.detail(orderId);
-        orderHtmlDto.setUser(user);
         return RespBean.success(orderHtmlDto);
     }
 

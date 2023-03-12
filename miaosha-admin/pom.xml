@@ -79,6 +79,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
         </dependency>
+        <!--amqp依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
 <!--        &lt;!&ndash; spring-session 依赖 &ndash;&gt;-->
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.session</groupId>-->

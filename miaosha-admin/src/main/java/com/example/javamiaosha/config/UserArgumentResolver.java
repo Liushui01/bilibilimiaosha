@@ -35,22 +35,15 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         HttpServletRequest request=webRequest.getNativeRequest(HttpServletRequest.class);
         HttpServletResponse response=webRequest.getNativeResponse(HttpServletResponse.class);
         log.error("{}","来到了判断");
-        String ticket=null;
-        for(Cookie cookie:request.getCookies()){
-            if(cookie.getName().equals("userTicket")){
-                ticket=cookie.getValue();
-            }
-        }
+        String ticket=CookieUtil.getCookieValue(request,"userTicket");
         log.error("{}","验证模块里的cookie值为："+ticket);
         if(StringUtils.isEmpty(ticket)){
             log.error("{}","tick为空");
-            request.getRequestDispatcher("/login/tologin").forward(request,response);
             return null;
         }
         User user=iUserService.getUserByCookie(ticket,request,response);
         if(user==null){
             log.error("{}","没有找到用户");
-            request.getRequestDispatcher("/login/tologin").forward(request,response);
             return null;
         }
         return user;
