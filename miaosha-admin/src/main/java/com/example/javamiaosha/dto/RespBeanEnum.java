@@ -18,7 +18,10 @@ public enum RespBeanEnum {
     EMPTY_STOCK(500500,"库存不足"),
     REPEATE_ERROR(500501,"该商品每人限购一件"),
     ORDER_NOT_EXIST(50025,"订单不存在"),
-    WAIT_ORDER(50026,"等待生产订单中.....");
+    WAIT_ORDER(50026,"等待生产订单中....."),
+    REQUEST_ILLEGAL(500027,"请求非法"),
+    ERROR_CAPTCHA(500028,"验证码错误，请重新输入"),
+    BUSY(500029,"服务器繁忙，请稍后再试");
     private final Integer code;
     private final String message;
 }

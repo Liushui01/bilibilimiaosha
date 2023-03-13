@@ -14,13 +14,17 @@ import com.example.javamiaosha.dto.RespBean;
 import com.example.javamiaosha.dto.RespBeanEnum;
 import com.example.javamiaosha.exception.GlobalException;
 import com.example.javamiaosha.service.IOrderService;
+import com.example.javamiaosha.utils.MD5Utils;
+import com.example.javamiaosha.utils.UUIDUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.util.StringUtils;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -80,6 +84,37 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         GoodsDto goodsDto = goodsDtoDao.findGoodsDtoByGoodsId(order.getGoodsId());
         OrderHtmlDto orderHtmlDto=new OrderHtmlDto(order,goodsDto);
         return orderHtmlDto;
+    }
+
+    /**
+     * 获取秒杀接口地址
+     * @param user
+     * @param goodsId
+     * @return
+     */
+    @Override
+    public String createPath(User user, Long goodsId) {
+        String str= MD5Utils.md5(UUIDUtil.uuid()+"123456");
+        redisTemplate.opsForValue().set("seckillPath:"+user.getId()+":"+goodsId,str,60, TimeUnit.SECONDS);
+        return str;
+    }
+
+    @Override
+    public boolean checkPath(User user, Long goodsId,String path) {
+        if(user==null||goodsId<0|| StringUtils.isEmpty(path)){
+            return false;
+        }
+        String redisPath = (String) redisTemplate.opsForValue().get("seckillPath:" + user.getId() + ":" + goodsId);
+        return path.equals(redisPath);
+    }
+
+    @Override
+    public boolean checkCaptcha(User user, Long goodsId, String captcha) {
+        if(user==null||goodsId<0||StringUtils.isEmpty(captcha)){
+            return false;
+        }
+        String redisCaptcha = (String) redisTemplate.opsForValue().get("captcha:" + user.getId() + ":" + goodsId);
+        return captcha.equals(redisCaptcha);
     }
 
     public Order insertOrder(User user,GoodsDto goodsDto){

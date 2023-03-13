@@ -100,8 +100,8 @@
     }
 
     function render(detail) {
-        var goods = detail.goodsVo;
-        var order = detail.torder;
+        var goods = detail.goodsDto;
+        var order = detail.order;
         $("#goodsName").text(goods.goodsName);
         $("#goodsImg").attr("src", goods.goodsImg);
         $("#goodsPrice").text(order.goodsPrice);

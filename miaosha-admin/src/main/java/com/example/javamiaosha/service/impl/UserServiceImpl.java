@@ -56,7 +56,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
         //生成cookie
         String ticket= UUIDUtil.uuid();
-        redisTemplate.opsForValue().set("user:"+ticket,user,600, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set("user:"+ticket,user,1800, TimeUnit.SECONDS);
         log.error("{}","cookie的值为："+ticket);
         CookieUtil.setCookie(request,response,"userTicket",ticket);
         return RespBean.success(ticket);

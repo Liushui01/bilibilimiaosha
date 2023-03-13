@@ -7,6 +7,7 @@ import com.example.javamiaosha.service.IOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * <p>
@@ -23,6 +24,7 @@ public class OrderController {
     @Autowired
     IOrderService iOrderService;
     @RequestMapping("/detail")
+    @ResponseBody
     public RespBean detail(User user,Long orderId){
         OrderHtmlDto orderHtmlDto = iOrderService.detail(orderId);
         return RespBean.success(orderHtmlDto);
